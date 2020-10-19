@@ -1,0 +1,93 @@
+<% layout('/layouts/default.html', {title: '用户管理管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('用户管理管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${baseUser}" action="${ctx}/base/baseUser/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('用户主键')}：</label>
+					<div class="control-inline">
+						<#form:input path="userCode" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('用户名')}：</label>
+					<div class="control-inline">
+						<#form:input path="userName" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('登录账号')}：</label>
+					<div class="control-inline">
+						<#form:input path="loginCode" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('密码')}：</label>
+					<div class="control-inline">
+						<#form:input path="password" maxlength="50" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('用户类型')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="userType" dictType="sys_user_type" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('性别')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="sex" dictType="sys_user_sex" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("用户名")}', name:'userName', index:'a.user_name', width:130, align:"center", frozen:true, formatter: function(val, obj, row, act){
+			return '<a href="${ctx}/base/baseUser/form?userCode='+row.userCode+'" class="btnList" data-title="${text("编辑用户管理")}">'+(val||row.id)+'</a>';
+		}},
+		{header:'${text("登录账号")}', name:'loginCode', index:'a.login_code', width:130, align:"center"},
+		{header:'${text("密码")}', name:'password', index:'a.password', width:110, align:"center"},
+        {header:'${text("用户主键")}', name:'userCode', index:'a.userCode', width:200, align:"center"},
+		{header:'${text("用户类型")}', name:'userType', index:'a.user_type', width:120, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_user_type')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("当前登录时间")}', name:'loginDate', index:'a.login_date', width:150, align:"center"},
+		{header:'${text("当前登录主机ip")}', name:'host', index:'a.host', width:150, align:"center"},
+		{header:'${text("冻结时间")}', name:'freezeDate', index:'a.freeze_date', width:150, align:"center"},
+        {header:'${text("状态")}', name:'status', index:'a.status', width:120, align:"center", formatter: function(val, obj, row, act){
+                return js.getDictLabel(${@DictUtils.getDictListJson('sys_search_status')}, val, '${text("未知")}', true);
+            }},
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+				actions.push('<a href="${ctx}/base/baseUser/form?userCode='+row.userCode+'" class="btnList" title="${text("编辑用户管理")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

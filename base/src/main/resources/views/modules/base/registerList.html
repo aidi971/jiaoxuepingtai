@@ -1,0 +1,133 @@
+<% layout('/layouts/default.html', {title: '注册信息管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('注册信息管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<% if(hasPermi('base:register:edit')){ %>
+					<a href="${ctx}/base/register/form" class="btn btn-default btnTool" title="${text('新增注册信息')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${register}" action="${ctx}/base/register/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('班级id')}：</label>
+					<div class="control-inline">
+						<#form:input path="classesId" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('教师id')}：</label>
+					<div class="control-inline">
+						<#form:input path="teacherId" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('用户名')}：</label>
+					<div class="control-inline">
+						<#form:input path="userName" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('登陆账号')}：</label>
+					<div class="control-inline">
+						<#form:input path="loginCode" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('申请状态sys_register_apply_state')}：</label>
+					<div class="control-inline">
+						<#form:input path="applyState" maxlength="1" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('当前登录主机ip')}：</label>
+					<div class="control-inline">
+						<#form:input path="host" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('账号状态')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="state" dictType="sys_user_status" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('注册时间')}：</label>
+					<div class="control-inline">
+						<#form:input path="registerTime" readonly="true" maxlength="20" class="form-control Wdate-datetime"
+							dataFormat="datetime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',isShowClear:false});"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('吊销方式 sys_event_handling_type')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="revokeType" dictType="sys_event_handling_type" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('吊销时间')}：</label>
+					<div class="control-inline">
+						<#form:input path="revokeTime" readonly="true" maxlength="20" class="form-control Wdate-datetime"
+							dataFormat="datetime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',isShowClear:false});"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('执行人')}：</label>
+					<div class="control-inline">
+						<#form:input path="handlerName" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("班级id")}', name:'classesId', index:'a.classes_id', width:150, align:"left", frozen:true, formatter: function(val, obj, row, act){
+			return '<a href="${ctx}/base/register/form?userCode='+row.userCode+'" class="btnList" data-title="${text("编辑注册信息")}">'+(val||row.id)+'</a>';
+		}},
+		{header:'${text("教师id")}', name:'teacherId', index:'a.teacher_id', width:150, align:"left"},
+		{header:'${text("用户名")}', name:'userName', index:'a.user_name', width:150, align:"left"},
+		{header:'${text("登陆账号")}', name:'loginCode', index:'a.login_code', width:150, align:"left"},
+		{header:'${text("申请状态sys_register_apply_state")}', name:'applyState', index:'a.apply_state', width:150, align:"left"},
+		{header:'${text("当前登录主机ip")}', name:'host', index:'a.host', width:150, align:"left"},
+		{header:'${text("账号状态")}', name:'state', index:'a.state', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_user_status')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("注册时间")}', name:'registerTime', index:'a.register_time', width:150, align:"center"},
+		{header:'${text("吊销方式 sys_event_handling_type")}', name:'revokeType', index:'a.revoke_type', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_event_handling_type')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("吊销时间")}', name:'revokeTime', index:'a.revoke_time', width:150, align:"center"},
+		{header:'${text("执行人")}', name:'handlerName', index:'a.handler_name', width:150, align:"left"},
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('base:register:edit')){ %>
+				actions.push('<a href="${ctx}/base/register/form?userCode='+row.userCode+'" class="btnList" title="${text("编辑注册信息")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				actions.push('<a href="${ctx}/base/register/delete?userCode='+row.userCode+'" class="btnList" title="${text("删除注册信息")}" data-confirm="${text("确认要删除该注册信息吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

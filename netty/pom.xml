@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.jeesite</groupId>
+        <artifactId>jeesite-parent</artifactId>
+        <version>4.1.8-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
+    <groupId>com.langheng</groupId>
+    <artifactId>langheng-module-netty</artifactId>
+
+    <name>Course Module Netty</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.langheng</groupId>
+            <artifactId>langheng-module-base</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.45.Final</version>
+        </dependency>
+    </dependencies>
+
+</project>

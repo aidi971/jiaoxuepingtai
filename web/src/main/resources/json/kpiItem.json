@@ -1,0 +1,49 @@
+[{
+  "itemKey": "attendance",
+  "itemName": "签到考勤",
+  "sort": 1,
+  "totalScore": 100.0,
+  "preset": true
+},
+  {
+    "itemKey": "classesPerformance",
+    "itemName": "课堂表现",
+    "sort": 2,
+    "totalScore": 100.0,
+    "preset": true
+  },
+  {
+    "itemKey": "chapterTest",
+    "itemName": "章节测试",
+    "sort": 3,
+    "totalScore": 100.0,
+    "preset": true
+  },
+  {
+    "itemKey": "ResourceBasedLearning",
+    "itemName": "资源学习",
+    "sort": 4,
+    "totalScore": 100.0,
+    "preset": true
+  },
+  {
+    "itemKey": "discussionAndCommunication",
+    "itemName": "讨论交流",
+    "sort": 5,
+    "totalScore": 100.0,
+    "preset": true
+  },
+  {
+    "itemKey": "practicalTrainingAndReport",
+    "itemName": "实训报告",
+    "sort": 6,
+    "totalScore": 100.0,
+    "preset": true
+  },
+  {
+    "itemKey": "comprehensiveEvaluation",
+    "itemName": "综合评分",
+    "sort": 7,
+    "totalScore": 100.0,
+    "preset": true
+  }]

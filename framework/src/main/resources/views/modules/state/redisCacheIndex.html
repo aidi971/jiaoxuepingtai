@@ -1,0 +1,184 @@
+<%/* Copyright (c) 2013-Now http://jeesite.com All rights reserved. */ %>
+<% layout('/layouts/default.html', {title: '缓存管理', libs: ['layout','dataGrid']}){ %>
+<div class="ui-layout-west">
+	<div class="main-content">
+		<div class="box box-main">
+			<div class="box-header">
+				<div class="box-title">
+					<i class="fa icon-social-dribbble"></i> ${text('缓存列表')}
+				</div>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" id="btnRefresh" title="${text('刷新')}"><i class="fa fa-refresh"></i></button>
+				</div>
+			</div>
+			<div class="ui-layout-content pr0 pb0">
+				<table id="dataGrid"></table>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui-layout-center">
+		<div class="main-content">
+			<div class="box box-main">
+				<div class="box-header">
+					<div class="box-title">
+						<i class="fa icon-menu"></i> ${text('键名列表')}
+					</div>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" id="btnRefreshKeys" title="${text('刷新')}"><i class="fa fa-refresh"></i></button>
+					</div>
+				</div>
+				<div class="ui-layout-content pr0 pb0">
+					<table id="dataGridKeys"></table>
+				</div>
+			</div>
+		</div>
+</div>
+<div class="ui-layout-east">
+	<div class="main-content">
+		<div class="box box-main">
+			<div class="box-header">
+				<div class="box-title">
+					<i class="fa icon-notebook"></i> ${text('缓存内容')}
+				</div>
+				<div class="box-tools pull-right">
+					<a href="#" class="btn btn-default" id="btnUpdateCache" title="${text('清理全部缓存，包括属性文件的配置')}"><i class="fa fa-refresh"></i> ${text('清理全部缓存')}</a>
+				</div>
+			</div>
+			<div class="ui-layout-content">
+				<#form:form class="form-horizontal">
+					<div class="box-body">
+						<div class="row m0">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<div class="col-sm-12">
+										${text('缓存名称')}：
+										<#form:input name="cacheName" class="form-control"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row m0">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<div class="col-sm-12">
+										${text('缓存键名')}：
+										<#form:input name="cacheKey" class="form-control"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row m0">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<div class="col-sm-12">
+										${text('缓存内容')}：
+										<#form:textarea name="cacheValue" rows="6" class="form-control autoHeight"/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</#form:form>
+			</div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化布局
+$('body').layout({
+	west__size: '25%',
+	east__size: '45%',
+	onresize: function(){
+// 		setTimeout(function(){
+			$(window).resize();
+// 			$("#dataGrid").dataGrid('resize')
+// 			setTimeout(function(){
+// //	 			$(window).resize();
+// 				$("#dataGridKeys").dataGrid('resize')
+// 			},1000);
+// 		},200);
+	}
+});
+// 缓存列表
+var dataGrid = $("#dataGrid"), content = dataGrid.parent(), cacheName = '';
+dataGrid.dataGrid({
+	url: '${ctx}/state/redis/cacheNameList',
+	postData: [],
+	columnModel: [
+		{header:'${text("缓存名称")}', name:'id', sortable:false, width:100, align:"left", classes:"pointer"},
+		{header:'${text("操作")}', name:'actions', width:30, align:"center", sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			return actions.join('');
+		}}
+	],
+	autoGridHeight: function(){
+		return content.height()-50;
+	},
+	autoGridWidth: function(){
+		return content.width()-11;
+	},
+	onSelectRow: function(id, isSelect, event){
+		cacheName = id;
+		dataGridKeys.dataGrid('setParam',{postData: [
+			{name:'cacheName',value:cacheName}
+		]}).dataGrid('refresh');
+	},
+	ajaxSuccess: function(){
+		
+	}
+});
+$('#btnRefresh').click(function(){
+	dataGrid.dataGrid('refresh');
+	js.showMessage('${text("缓存列表刷新完成")}');
+});
+// 键名列表
+var dataGridKeys = $("#dataGridKeys"), contentKeys = dataGridKeys.parent(), key = '';
+dataGridKeys.dataGrid({
+	url: '${ctx}/state/redis/cacheKeyList',
+	postData: [],
+	columnModel: [
+		{header:'${text("缓存键名")}', name:'id', sortable:false, width:100, align:"left", classes:"pointer"},
+		{header:'${text("操作")}', name:'actions', width:25, align:"center", sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			actions.push('<a href="${ctx}/state/redis/clearCacheByKey?key='+row.id+'" class="btnList" title="${text("清理缓存")}" data-confirm="${text("确认要清理该缓存吗？")}" data-confirm-success="$(\'#btnRefreshKeys\').click()"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			return actions.join('');
+		}}
+	],
+	autoGridHeight: function(){
+		return contentKeys.height()-50;
+	},
+	autoGridWidth: function(){
+		return contentKeys.width()-11;
+	},
+	onSelectRow: function(id, isSelect, event){
+		key = id;
+		js.ajaxSubmit('${ctx}/state/redis/cacheValue',
+				{cacheName:cacheName,key:key}, function(data){
+			$('#cacheName').val(data.cacheName);
+			$('#cacheKey').val(data.cacheKey);
+			if (typeof  data.cacheValue == 'string'){
+                $('#cacheValue').val(data.cacheValue).trigger("blur");
+			} else if (typeof data.cacheValue == 'object'){
+                $('#cacheValue').val(JSON.stringify(data.cacheValue)).trigger("blur");
+			}
+
+		});
+	},
+	ajaxSuccess: function(){
+		
+	}
+});
+$('#btnRefreshKeys').click(function(){
+	dataGridKeys.dataGrid('refresh');
+	js.showMessage('${text("缓存列表刷新完成")}');
+});
+// 更新平台中的全部缓存，包含属性配置文件。
+$("#btnUpdateCache").click(function(){ 
+	js.ajaxSubmit("${ctx}/state/redis/clearAll", function(data){
+		js.showMessage(data.message);
+	});
+	return false;
+});
+</script>

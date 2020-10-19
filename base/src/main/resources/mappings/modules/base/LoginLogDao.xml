@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.langheng.modules.base.dao.LoginLogDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="LoginLog">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<!-- 查询数据-->
+	<select id="findPageJoinClasses" resultType="com.langheng.modules.base.entity.LoginLog">
+		SELECT ${sqlMap.column.toSql()},u13.classes_id AS classesId,u13.class_name AS className
+		FROM ${sqlMap.table.toSql()}
+		JOIN sys_student AS u12 ON a.user_id=u12.student_id AND u11.user_type='1'
+		JOIN sys_classes AS u13 ON u12.classes_id=u13.classes_id
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+
+	<insert id="insertLog">
+		insert into sys_login_log(info_id,user_id,ipaddr,location,browser,os,msg,login_time,user_agent,type)
+		values(#{infoId},#{user.userCode},#{ipaddr},#{location},#{browser},#{os},#{msg},#{loginTime},#{userAgent},#{type})
+	</insert>
+
+	<select id="everyMouthStatByUser" resultType="java.util.Map">
+		SELECT COUNT(login_time) AS loginNum, date_format(login_time, '%Y-%m') AS  loginMouth
+		FROM sys_login_log
+		WHERE user_id = #{userId}
+		GROUP BY date_format(login_time, '%Y-%m')
+	</select>
+
+	<select id="everyMouthStat" resultType="java.util.Map">
+		SELECT COUNT(login_time) AS loginNum, date_format(login_time, '%Y-%m') AS  loginMouth
+		FROM sys_login_log  group by date_format(login_time, '%Y-%m')
+	</select>
+
+	<select id="everyMouthStatByClasses" resultType="java.util.Map">
+		SELECT COUNT(login_time) AS loginNum, date_format(login_time, '%Y-%m') AS  loginMouth
+	    JOIN sys_student AS u11 ON u11.student_id = a.user_id AND u11.classes_id = #{classesId}
+		FROM sys_login_log AS a
+		GROUP BY date_format(login_time, '%Y-%m')
+	</select>
+
+</mapper>

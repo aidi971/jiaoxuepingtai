@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.langheng.modules.ed.dao.UserChapterDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="UserChapter">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<select id="findMyPendingChapterList" resultType="com.langheng.modules.ed.entity.Chapter">
+		SELECT a.* FROM ed_chapter AS a
+		JOIN ed_teaching_class_chapter AS tc ON tc.chapter_id = a.chapter_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+			a.status = '0' AND
+			a.chapter_id NOT IN (SELECT chapter_id FROM ed_user_chapter WHERE user_id =#{userId} )
+		ORDER BY a.chapter_num
+	</select>
+
+	<select id="findMyFinishingChapterList" resultType="com.langheng.modules.ed.entity.Chapter">
+		SELECT DISTINCT a.* FROM ed_chapter AS a
+		JOIN ed_teaching_class_chapter AS tc ON tc.chapter_id = a.chapter_id AND tc.teaching_class_id =#{teachingClassId}
+		JOIN ed_user_task AS ut ON ut.chapter_id = tc.chapter_id AND ut.state='2' AND ut.user_id =#{userId}
+			AND ( ut.lesson_id IN (SELECT lesson_id FROM ed_user_lesson AS ul WHERE ul.user_id =#{userId} )
+				OR ut.parent_lesson_id IN (SELECT lesson_id FROM ed_user_lesson AS ul WHERE ul.user_id =#{userId}) )
+		WHERE
+			a.status = '0'
+		ORDER BY a.chapter_num
+	</select>
+
+	<select id="findMyFinishChapterList" resultType="com.langheng.modules.ed.entity.Chapter">
+		SELECT a.* FROM ed_chapter AS a
+		JOIN ed_teaching_class_chapter AS tc ON tc.chapter_id = a.chapter_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+			a.status = '0' AND
+			a.chapter_id IN (SELECT chapter_id FROM ed_user_chapter WHERE user_id =#{userId} )
+		ORDER BY a.chapter_num
+	</select>
+
+	<select id="checkIfFinishAllLesson" resultType="java.lang.Long">
+		SELECT count(1) FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+		 a.status = '0' AND
+		 a.chapter_id = #{chapterId} AND
+		 a.lesson_id NOT IN (SELECT lesson_id FROM ed_user_lesson AS ul  WHERE a.lesson_id = ul.lesson_id  AND ul.user_id=#{userId} )
+	</select>
+
+</mapper>

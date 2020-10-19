@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.langheng.modules.base.dao.StudentDao">
+	
+	<!-- 查询数据 -->
+	<select id="findListByClasses" resultType="com.langheng.modules.base.entity.Student">
+		SELECT a.student_id AS "studentId", a.student_name AS "studentName", a.origin_type AS "originType", a.status AS "status", a.create_by AS "createBy", a.create_date AS "createDate", a.update_by AS "updateBy", a.update_date AS "updateDate", a.remarks AS "remarks", u11.user_code AS "userCode", u11.login_code AS "loginCode", u11.user_name AS "userName", u11.password AS "password", u11.sex AS "sex", u11.user_type AS "userType", u11.cover_img AS "coverImg", u11.login_date AS "loginDate", u11.host AS "host", u11.last_login_date AS "lastLoginDate", u11.last_host AS "lastHost", u11.freeze_date AS "freezeDate"
+		 FROM sys_student a
+		 LEFT JOIN sys_user u11 ON u11.user_code = a.student_id
+		  LEFT JOIN sys_student_classes u12 ON u12.student_id = a.student_id
+		 <where>
+			 <if test="student.loginCode!=null and student.loginCode!=''">
+                 u11.login_code LIKE CONCAT('%',#{student.loginCode},'%') AND
+			 </if>
+             <if test="student.studentName!=null and student.studentName!=''">
+                 a.student_name LIKE CONCAT('%',#{student.studentName},'%') AND
+             </if>
+             <if test="student.originType!=null and student.originType!=''">
+                 a.origin_type = #{student.originType} AND
+             </if>
+			 a.status != '1' AND u11.status != '1'  AND u12.classes_id = ${classesId}
+		 </where>
+		 ORDER BY u11.login_code
+	</select>
+
+	<!-- 查询数据 -->
+	<select id="getMaxLoginCode" resultType="java.lang.String">
+		SELECT max(login_code) as login_code FROM sys_user where login_code LIKE CONCAT(#{suffixLoginCode},'%')
+	</select>
+
+	<select id="selectUnJoinClassesStudent" resultType="java.lang.String">
+		SELECT student_id FROM sys_student as a
+		WHERE a.update_date  &lt;= #{limitTime} AND a.student_id NOT IN (SELECT student_id FROM sys_student_classes)
+	</select>
+
+</mapper>

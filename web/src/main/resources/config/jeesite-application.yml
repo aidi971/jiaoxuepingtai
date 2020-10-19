@@ -1,0 +1,98 @@
+#======================================#
+#========== Spring settings ===========#
+#======================================#
+
+spring:
+  resources:
+    static-locations: file:${web.upload-path}
+  # open office 配置
+  devtools:
+    restart:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1000MB
+#======================================#
+#========== Server settings ===========#
+#======================================#
+# jwt 相关配置
+jwt:
+  secret: zIiwiZXhwIjoxNTcxNjQyMDUwLCJ1c2VySWQiOiIxMjMxMjMyMyJ9
+  expire: 1440
+  tokenCacheExpire: 30
+  refreshInterval: 5
+  authorised-urls: /admin/**,/api/**
+  verify-urls: /admin/classes/delete,/admin/teachClassTask/recall*,/api/EdTestLibrary/deleteInBatches
+  mode: demo
+  testToken: testUserToken_eyJsb2dpbk5hbWUiOiJYSUFPWElF
+
+mJedisHost: 47.113.100.175
+
+imgcopath:
+uploadF:
+  filepath: files/
+  filePdfPath: pdf/
+  PDF: .pdf
+  ##logo
+  logoPath: ${uploadF.filepath}schoolLogo/
+  ##头像
+  userHeadPath: ${uploadF.filepath}userHead/
+  picture: ${uploadF.filepath}SuPicture/
+  coverimg: ${uploadF.filepath}coverimg/
+  ## 绘画板
+  mspaintImg: ${uploadF.filepath}mspaintImg/
+  ##团队空间
+  teamRoom: ${uploadF.filepath}room/
+downloadF:
+  filepath: files/
+  filePdfPath: pdf/
+  PDF: pdf
+  tempath: template/
+  zipPath: zip/
+
+web:
+  upload-path: C:/Program Files/LH/
+video:
+  ffmpeg: ffmpeg/bin/ffmpeg.exe
+  keyinfo: key/enc.keyinfo
+  key: key/enc.key
+  temporary: c\111\a\ff\
+
+# open office 配置
+#jodconverter:
+#  local:
+#    enabled: true
+#    office-home: C:\\Program Files (x86)\\OpenOffice 4
+#    max-tasks-per-process: 100
+#    port-numbers: 8100,8101
+#    port-numbers: 8100, 8101, 8102, 8103
+###########  授权相关配置
+license:
+  #基础功能
+  base-function:
+    port: 20020
+  #资源库
+  res-pool-function:
+    port:
+
+socket:
+    port:
+      # 系统
+      system: 20204
+      # 弹幕
+      barrage: 20203
+      # 课堂工具
+      roomTool: 20206
+      # 聊天
+      chat: 20205
+      # ass模块
+      ass: 20207
+      # 业务模块
+      business: 20208
+#下载速率
+maxRate:
+  student: 100
+  teacher: 500
+  admin: 999999
+

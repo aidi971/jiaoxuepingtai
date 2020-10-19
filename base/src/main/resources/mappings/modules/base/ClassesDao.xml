@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.langheng.modules.base.dao.ClassesDao">
+	
+	<select id="findList" resultType="com.langheng.modules.base.entity.Classes">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+			<if test="teacherNameOrClassesName != null and teacherNameOrClassesName!=''">
+				AND (u11.teacher_name LIKE concat('%',#{teacherNameOrClassesName},'%')
+				OR a.class_name LIKE concat('%',#{teacherNameOrClassesName},'%'))
+			</if>
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+
+	<!-- 查询数据 -->
+	<select id="findAcademyIdsOrderByAcademyId" resultType="java.lang.String">
+		SELECT  academy_id
+		FROM sys_classes
+		<where>
+			teacher_id = #{teacher.teacherId} AND
+			status = '0'
+		</where>
+		GROUP BY academy_id
+	</select>
+
+	<update id="updateStuOnlineNum">
+		update sys_classes set stu_online_num = #{stuOnlineNum} WHERE classes_id = #{classesId}
+	</update>
+
+</mapper>

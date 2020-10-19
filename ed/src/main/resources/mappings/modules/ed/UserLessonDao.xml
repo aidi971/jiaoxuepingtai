@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.langheng.modules.ed.dao.UserLessonDao">
+	
+
+	<select id="findMyPendingLessonList" resultType="com.langheng.modules.ed.entity.Lesson">
+		SELECT a.*,a.chapter_id AS 'chapter.id',
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+						JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id  WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id) AS lessonTaskNum,
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+			JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id
+			WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id AND tclt.lesson_task_id IN (SELECT lesson_task_id FROM ed_user_task AS uk WHERE uk.state ='2' AND uk.user_id = #{userId})) AS hadFinishLessonTaskNum
+		FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+			a.status = '0' AND
+			<if test="chapterId!=null and chapterId!=''">
+				a.chapter_id = #{chapterId} AND
+			</if>
+			a.lesson_id NOT IN (SELECT lesson_id FROM ed_user_lesson WHERE user_id =#{userId} )
+		ORDER BY a.lesson_num
+	</select>
+
+	<select id="findMyPendingSubLessonList" resultType="com.langheng.modules.ed.entity.Lesson">
+		SELECT a.*,
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+					JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id  WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id) AS lessonTaskNum,
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+			JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id
+			WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id AND tclt.lesson_task_id IN (SELECT lesson_task_id FROM ed_user_task AS uk WHERE uk.state ='2' AND uk.user_id = #{userId})) AS hadFinishLessonTaskNum
+		FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+			a.status = '0' AND
+			a.parent_lesson_id = #{lessonId} AND
+			a.lesson_id NOT IN (SELECT lesson_id FROM ed_user_lesson WHERE user_id =#{userId} )
+		ORDER BY a.lesson_num
+	</select>
+
+	<select id="findMyFinishingLessonList" resultType="com.langheng.modules.ed.entity.Lesson">
+		SELECT DISTINCT a.*,a.chapter_id AS 'chapter.id',
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+						JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id  WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id) AS lessonTaskNum
+		FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+	    JOIN ed_lesson AS u11 ON u11.parent_lesson_id = a.lesson_id
+	 	JOIN ed_user_lesson AS ul ON ul.lesson_id = u11.lesson_id  AND ul.user_id =#{userId}
+		WHERE
+			a.status = '0'
+			<if test="chapterId!=null and chapterId!=''">
+				AND a.chapter_id = #{chapterId}
+			</if>
+		ORDER BY a.lesson_num
+	</select>
+
+	<select id="findMyFinishLessonList" resultType="com.langheng.modules.ed.entity.Lesson">
+		SELECT a.*,a.chapter_id AS 'chapter.id',
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+						JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id  WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id) AS lessonTaskNum
+		FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+			a.status = '0' AND
+			<if test="chapterId!=null and chapterId!=''">
+				a.chapter_id = #{chapterId} AND
+			</if>
+			a.lesson_id IN (SELECT lesson_id FROM ed_user_lesson WHERE user_id =#{userId} )
+		ORDER BY a.lesson_num
+	</select>
+
+	<select id="findMyFinishSubLessonList" resultType="com.langheng.modules.ed.entity.Lesson">
+		SELECT a.*,
+			(SELECT count(1)  FROM ed_lesson_task AS lt
+					JOIN ed_teaching_class_lesson_task AS tclt ON tclt.teaching_class_id =#{teachingClassId} AND lt.lesson_task_id = tclt.lesson_task_id  WHERE lt.status = '0' AND lt.lesson_id=a.lesson_id) AS lessonTaskNum
+		FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+			a.status = '0' AND
+			a.parent_lesson_id = #{lessonId} AND
+			a.lesson_id IN (SELECT lesson_id FROM ed_user_lesson WHERE user_id =#{userId} )
+		ORDER BY a.lesson_num
+	</select>
+
+	<select id="checkIsFinishAllSubLesson" resultType="java.lang.Long">
+		SELECT count(1) FROM ed_lesson AS a
+		JOIN ed_teaching_class_lesson AS tc ON tc.lesson_id = a.lesson_id AND tc.teaching_class_id =#{teachingClassId}
+		WHERE
+		a.status = '0'
+		AND a.parent_lesson_id = #{lessonId}
+		AND a.lesson_id NOT IN (SELECT lesson_id FROM ed_user_lesson AS ul  WHERE a.lesson_id = ul.lesson_id AND ul.user_id=#{userId} )
+	</select>
+</mapper>

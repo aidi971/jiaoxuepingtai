@@ -1,0 +1,104 @@
+<% layout('/layouts/default.html', {title: '系统消息管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('系统消息管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<% if(hasPermi('base:msg:edit')){ %>
+					<a href="${ctx}/base/msg/form" class="btn btn-default btnTool" title="${text('新增系统消息')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${msg}" action="${ctx}/base/msg/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('消息标题')}：</label>
+					<div class="control-inline">
+						<#form:input path="title" maxlength="200" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('类型 | 字典集 sys_msg_type')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="type" dictType="sys_msg_type" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('状态')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="state" dictType="bpm_event_type" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('消息内容')}：</label>
+					<div class="control-inline">
+						<#form:input path="content" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('发送时间')}：</label>
+					<div class="control-inline">
+						<#form:input path="sendTime" readonly="true" maxlength="20" class="form-control Wdate-datetime"
+							dataFormat="datetime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',isShowClear:false});"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('发送者')}：</label>
+					<div class="control-inline">
+						<#form:input path="senderCode" maxlength="64" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('发送者姓名')}：</label>
+					<div class="control-inline">
+						<#form:input path="senderName" maxlength="128" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("消息标题")}', name:'title', index:'a.title', width:150, align:"left", frozen:true, formatter: function(val, obj, row, act){
+			return '<a href="${ctx}/base/msg/form?msgId='+row.msgId+'" class="btnList" data-title="${text("编辑系统消息")}">'+(val||row.id)+'</a>';
+		}},
+		{header:'${text("类型 | 字典集 sys_msg_type")}', name:'type', index:'a.type', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_msg_type')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("状态")}', name:'state', index:'a.state', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('bpm_event_type')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("消息内容")}', name:'content', index:'a.content', width:150, align:"left"},
+		{header:'${text("发送时间")}', name:'sendTime', index:'a.send_time', width:150, align:"center"},
+		{header:'${text("发送者")}', name:'senderCode', index:'a.sender_code', width:150, align:"left"},
+		{header:'${text("发送者姓名")}', name:'senderName', index:'a.sender_name', width:150, align:"left"},
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('base:msg:edit')){ %>
+				actions.push('<a href="${ctx}/base/msg/form?msgId='+row.msgId+'" class="btnList" title="${text("编辑系统消息")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				actions.push('<a href="${ctx}/base/msg/delete?msgId='+row.msgId+'" class="btnList" title="${text("删除系统消息")}" data-confirm="${text("确认要删除该系统消息吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

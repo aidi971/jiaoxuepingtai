@@ -1,0 +1,90 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<div style="margin-top: 100px">
+    输入token： <textarea name="tokenInput" id="tokenInputId"  ></textarea>
+    <button onclick="openSocket()">连接socket</button><br/><br/>
+    <button onclick="keepAlive()">续期</button><br/><br/>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+
+<script>
+    var  SYS_MSG_SERVER_SEND_MSG = 63200;  // 系统消息 服务端群发
+    var  AUTH_ERROR_PROTO = 40300; //认证失败消息
+
+    var NOTICE_MSG_TYPE = "0" ; //公告信息
+    var TEACH_CLASS_TASK_MSG_TYPE = "1" ; //学习任务信息
+    var CLASSES_MSG_TYPE = "2" ; //班级信息
+    var DISCUSS_MSG_TYPE = "3" ; //讨论区信息
+    var TEMPLATE_AUDIT_MSG_TYPE = "4" ; //模板审核信息
+
+</script>
+
+<script>
+    var socket; //websocket的实例
+    var lockReconnect = true; //避免重复连接
+    var token = null;
+
+    function geWebSocket(token) { //新建websocket的函数 页面初始化 断开连接时重新调用
+        var wsUrl = 'ws://127.0.0.1:20204/ws/system/' + token + "?isMainChannel=false";
+        socket = new WebSocket(wsUrl);
+        socket.onerror = function(event) {
+            console.log('websocket服务error了');
+            reconnect(wsUrl);
+        };
+        socket.onclose = function(event) {
+            console.log('websocket服务close了');
+            reconnect(wsUrl);
+        };
+        socket.onopen = function(event) {
+            console.log('websocket服务open了');
+        };
+        socket.onmessage = function(event) {
+            //拿到任何消息都说明当前连接是正常的
+            console.log('websocket服务获得数据了');
+            var res = JSON.parse(event.data);
+            console.log(res);
+            if(res.extend.code === SYS_MSG_SERVER_SEND_MSG){
+                var sysMsg = JSON.parse(res.extend.mess);
+                if (sysMsg.type == TEACH_CLASS_TASK_MSG_TYPE){
+                    console.log("从服务器接收到 学习任务信息: " );
+                    console.log(sysMsg);
+                }else if (sysMsg.type == NOTICE_MSG_TYPE){
+                    console.log("从服务器接收到 公告信息: " );
+                    console.log(sysMsg);
+                }
+            }else if(res.extend.code === AUTH_ERROR_PROTO){
+                console.log("您已被踢下载,账号在其他客户端登录!" );
+            }
+        };
+    }
+
+    /**
+     * 重新连接
+     * @param url
+     */
+    function reconnect(url) {
+        if (lockReconnect) return;
+        lockReconnect = true;
+        //没连接上会一直重连，设置延迟避免请求过多
+        setTimeout(function() {
+            geWebSocket(token);
+            lockReconnect = false;
+        }, 5000);
+    }
+
+    var keepAlive = function () {
+        var data = {};
+        data.code = 63001;
+        socket.send(JSON.stringify(data));
+    }
+
+    var openSocket = function () {
+        var tokenInput = $("#tokenInputId").val();
+        if (tokenInput == null || tokenInput == ""){
+            alert("请先输入token")
+            return;
+        }
+        token = tokenInput;
+        geWebSocket(token);
+    };
+
+</script>

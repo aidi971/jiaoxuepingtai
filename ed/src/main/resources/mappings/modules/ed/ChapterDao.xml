@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.langheng.modules.ed.dao.ChapterDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="Chapter">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<!-- 查询数据 -->
+	<select id="findListHadPush" resultType="com.langheng.modules.ed.entity.Chapter">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+			AND a.chapter_id in (SELECT chapter_id FROM ed_teaching_class_chapter AS tcc  WHERE  tcc.teaching_class_id=#{teachingClassId}  )
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select>
+	
+</mapper>
