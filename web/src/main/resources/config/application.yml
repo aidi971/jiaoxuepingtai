@@ -21,7 +21,7 @@ demoMode: false
 
 server:
 
-  port: 8088
+  port: 8090
   servlet:
     context-path: /course
   tomcat:
@@ -40,9 +40,9 @@ jdbc:
   # Mysql 数据库配置
   type: mysql
   driver: com.mysql.jdbc.Driver
-  url: jdbc:mysql://139.9.187.206:5001/jeesite?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+  url: jdbc:mysql://127.0.0.1:3306/jeesite?useSSL=false&useUnicode=true
   username: root
-  password: zt123456
+  password:
   testSql: SELECT 1
 
 
@@ -123,9 +123,9 @@ jdbc:
   ds2:
     type: mysql
     driver: com.mysql.jdbc.Driver
-    url: jdbc:mysql://139.9.187.206:5001/teaching_platform?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://127.0.0.1:3306/teaching_platform?useSSL=false&useUnicode=true
     username: root
-    password: zt123456
+    password:
     testSql: SELECT 1
     encrypt:
       username: false
@@ -170,8 +170,8 @@ spring:
 
 #  # Redis 连接参数 （RedisProperties）
   redis:
-    host: 139.9.187.206
-    port: 20202
+    host:
+    port:
     ssl: false
     database: 0
     lettuce:
@@ -185,7 +185,7 @@ spring:
             max-active: 200
             max-idle: 10
             min-idle: 0
-    password: Lh123456
+    password:
 
 #  # 缓存配置
 #  cache:

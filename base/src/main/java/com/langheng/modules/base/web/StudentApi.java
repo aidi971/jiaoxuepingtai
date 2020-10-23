@@ -84,6 +84,7 @@ public class StudentApi extends BaseApiController {
                                         @RequestParam String validCode,
                                         HttpServletRequest request){
         boolean isValidate = CaptchaUtil.ver(validCode,request);
+        System.out.println(validCode);
         if (!isValidate){
             return error("验证码不正确！");
         }

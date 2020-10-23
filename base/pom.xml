@@ -13,11 +13,11 @@
 	<groupId>com.langheng</groupId>
 	<artifactId>langheng-module-base</artifactId>
 	<packaging>jar</packaging>
-	
+
 	<name>Course Module Base</name>
 	<url>http://jeesite.com</url>
 	<inceptionYear>2013-Now</inceptionYear>
-	
+
 	<dependencies>
 
 		<dependency>
